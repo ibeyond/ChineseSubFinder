@@ -493,9 +493,13 @@ func (d Downloader) writeSubFile2VideoPath(videoFileFullPath string, finalSubFil
 	// Plex字幕处理
 	if d.reqParam.PlexConfig == true {
 		// 生成字幕文件名 Video.zh.ext
-		plexSub := path.Join(videoRootPath, strings.ReplaceAll(filepath.Base(videoFileFullPath), filepath.Ext(videoFileFullPath), "")+".zh"+finalSubFile.Ext)
+		plexSub := path.Join(videoRootPath,
+			strings.ReplaceAll(filepath.Base(videoFileFullPath), filepath.Ext(videoFileFullPath), "")+".zh"+finalSubFile.Ext)
 		// 将默认字幕设置为Plex的zh字幕文件
 		if setDefault == true {
+			// 为了标识最佳字幕，给字幕名字添加上SDH后缀（Plex支持该文件）
+			plexSub := path.Join(videoRootPath,
+				strings.ReplaceAll(filepath.Base(videoFileFullPath), filepath.Ext(videoFileFullPath), "")+".zh.sdh"+finalSubFile.Ext)
 			if pkg.IsFile(plexSub) == true {
 				_ = os.Remove(plexSub)
 			}
