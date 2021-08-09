@@ -490,15 +490,25 @@ func (d Downloader) writeSubFile2VideoPath(videoFileFullPath string, finalSubFil
 	if err != nil {
 		return err
 	}
-	// 将默认字幕设置为Plex的zh字幕文件
-	if setDefault == true && d.reqParam.PlexConfig == true {
+	// Plex字幕处理
+	if d.reqParam.PlexConfig == true {
+		// 生成字幕文件名 Video.zh.ext
 		plexSub := path.Join(videoRootPath, strings.ReplaceAll(filepath.Base(videoFileFullPath), filepath.Ext(videoFileFullPath), "")+".zh"+finalSubFile.Ext)
-		if pkg.IsFile(plexSub) == true {
-			_ = os.Remove(plexSub)
-		}
-		err := utils.OutputFile(plexSub, finalSubFile.Data)
-		if err != nil {
-			return err
+		// 将默认字幕设置为Plex的zh字幕文件
+		if setDefault == true {
+			if pkg.IsFile(plexSub) == true {
+				_ = os.Remove(plexSub)
+			}
+			err := utils.OutputFile(plexSub, finalSubFile.Data)
+			if err != nil {
+				return err
+			}
+		} else if pkg.IsFile(plexSub) == false {
+			// 字幕文件不存在的话，说明字幕的格式不一样，可以再添加一个选择
+			err := utils.OutputFile(plexSub, finalSubFile.Data)
+			if err != nil {
+				return err
+			}
 		}
 		d.log.Infoln("PlexSubDownAt:", plexSub)
 	}
