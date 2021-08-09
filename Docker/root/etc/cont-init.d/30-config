@@ -12,4 +12,4 @@ fi
 
 # 容器启动时下载最新示例文件
 rm -f /config/config.yaml.sample
-wget -q -O /config/config.yaml.sample https://cdn.jsdelivr.net/gh/allanpk716/ChineseSubFinder/config.yaml.sample
+wget -q -O /config/config.yaml.sample https://raw.githubusercontent.com/ibeyond/ChineseSubFinder/master/config.yaml.sample
