@@ -19,7 +19,7 @@ jobs:
           echo "::set-output name=version::${GITHUB_REF:11}"
           echo "ReleaseTag=${GITHUB_REF:11}" 
           echo "${GITHUB_REF}"
-          $(echo ${GITHUB_REF#refs/heads/})
+          echo "${GITHUB_REF#refs/heads/}"
 
       # Docker Image 构建环境
       - name: Set up QEMU
