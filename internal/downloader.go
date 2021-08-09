@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/allanpk716/ChineseSubFinder/internal/common"
@@ -491,7 +492,7 @@ func (d Downloader) writeSubFile2VideoPath(videoFileFullPath string, finalSubFil
 	}
 	// 将默认字幕设置为Plex的zh字幕文件
 	if setDefault == true && d.reqParam.PlexConfig == true {
-		plexSub := path.Join(videoRootPath, videoFileFullPath+".zh."+finalSubFile.Ext)
+		plexSub := path.Join(videoRootPath, strings.ReplaceAll(filepath.Base(videoFileFullPath), filepath.Ext(videoFileFullPath), "")+".zh"+finalSubFile.Ext)
 		if pkg.IsFile(plexSub) == true {
 			_ = os.Remove(plexSub)
 		}
