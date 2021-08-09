@@ -12,6 +12,7 @@ type ReqParam struct {
 	WhenSubSupplierInvalidWebHook string          // 当字幕网站失效的时候，触发的 webhook 地址，默认是 get
 	EmbyConfig                    emby.EmbyConfig // Emby API 高阶设置参数
 	SaveOneSeasonSub              bool            // 保存整个季度的字幕
+	PlexConfig                    bool            // 是否设置为Plex格式的字幕
 
 	HttpProxy string // HttpClient 相关
 	UserAgent string // HttpClient 相关

@@ -14,6 +14,7 @@ type Config struct {
 	SaveMultiSub                  bool            // 保存多个网站的 Top 1 字幕
 	SaveOneSeasonSub              bool            // 保存整个季度的字幕
 	CustomVideoExts               string          // 自定义视频扩展名，多个扩展名用英文逗号分隔。是在原有基础上新增。
+	PlexConfig                    bool            // 将最佳字幕自动保存成为Plex支持的文件名
 
 	MovieFolder  string // 电影文件夹
 	SeriesFolder string // 连续剧文件夹

@@ -114,6 +114,7 @@ func DownLoadStart(httpProxy string) {
 		WhenSubSupplierInvalidWebHook: config.WhenSubSupplierInvalidWebHook,
 		EmbyConfig:                    config.EmbyConfig,
 		SaveOneSeasonSub:              config.SaveOneSeasonSub,
+		PlexConfig:                    config.PlexConfig,
 	})
 
 	log.Infoln("Download One Started...")

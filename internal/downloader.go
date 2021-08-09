@@ -1,6 +1,11 @@
 package internal
 
 import (
+	"os"
+	"path"
+	"path/filepath"
+	"sync"
+
 	"github.com/allanpk716/ChineseSubFinder/internal/common"
 	embyHelper "github.com/allanpk716/ChineseSubFinder/internal/logic/emby_helper"
 	markSystem "github.com/allanpk716/ChineseSubFinder/internal/logic/mark_system"
@@ -22,10 +27,6 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
-	"os"
-	"path"
-	"path/filepath"
-	"sync"
 )
 
 // Downloader 实例化一次用一次，不要反复的使用，很多临时标志位需要清理。
@@ -487,6 +488,17 @@ func (d Downloader) writeSubFile2VideoPath(videoFileFullPath string, finalSubFil
 	err := utils.OutputFile(desSubFullPath, finalSubFile.Data)
 	if err != nil {
 		return err
+	}
+	if setDefault == true && d.reqParam.PlexConfig == true {
+		plexSub := path.Join(videoRootPath, videoFileFullPath+".zh."+finalSubFile.Ext)
+		if pkg.IsFile(plexSub) == true {
+			_ = os.Remove(plexSub)
+		}
+		err := utils.OutputFile(plexSub, finalSubFile.Data)
+		if err != nil {
+			return err
+		}
+		d.log.Infoln("PlexSubDownAt:", plexSub)
 	}
 	d.log.Infoln("OrgSubName:", finalSubFile.Name)
 	d.log.Infoln("SubDownAt:", desSubFullPath)
