@@ -489,6 +489,7 @@ func (d Downloader) writeSubFile2VideoPath(videoFileFullPath string, finalSubFil
 	if err != nil {
 		return err
 	}
+	// 将默认字幕设置为Plex的zh字幕文件
 	if setDefault == true && d.reqParam.PlexConfig == true {
 		plexSub := path.Join(videoRootPath, videoFileFullPath+".zh."+finalSubFile.Ext)
 		if pkg.IsFile(plexSub) == true {
