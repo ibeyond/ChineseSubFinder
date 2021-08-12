@@ -25,3 +25,9 @@
 /settings.db
 /TestData/zips/test
 /internal/pkg/Logs
+/internal/pkg/emby_helper/config.yaml
+/cmd/chinesesubfinder/config.yaml
+/*.exe
+/cmd/chinesesubfinder/*.exe
+/internal/tmpthings
+/TestData/sub_parser/test
