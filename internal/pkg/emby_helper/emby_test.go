@@ -13,7 +13,9 @@ func TestEmbyHelper_GetRecentlyItems(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	println(items.Items[0].Name, items.Items[0].SeriesName, items.Items[0].Type)
+	for i, item := range items.Items {
+		println(i, item.Name, item.SeriesName, item.Type)
+	}
 }
 
 func TestEmbyHelper_GetItemsAncestors(t *testing.T) {
@@ -42,6 +44,19 @@ func TestEmbyHelper_GetItemVideoInfo(t *testing.T) {
 	println(videoInfo.Name, videoInfo.Path)
 }
 
+func TestEmbyHelper_GetItemVideoInfoByUserId(t *testing.T) {
+	em := NewEmbyHelper(pkg.GetConfig().EmbyConfig)
+	// 95813 -- 命运夜
+	// 96564 -- The Bad Batch - S01E11
+	// 108766 -- R&M - S05E06
+	videoInfo, err := em.GetItemVideoInfoByUserId("xxxxxxxxxxxxx", "108766")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	println(videoInfo.Name, videoInfo.Path, "Default Sub Index:", videoInfo.GetDefaultSubIndex())
+}
+
 func TestEmbyHelper_UpdateVideoSubList(t *testing.T) {
 	em := NewEmbyHelper(pkg.GetConfig().EmbyConfig)
 	// 95813 -- 命运夜
@@ -49,5 +64,16 @@ func TestEmbyHelper_UpdateVideoSubList(t *testing.T) {
 	err := em.UpdateVideoSubList("95813")
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestEmbyHelper_GetUserIdList(t *testing.T) {
+	em := NewEmbyHelper(pkg.GetConfig().EmbyConfig)
+	userIds, err := em.GetUserIdList()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, item := range userIds.Items {
+		println(i, item.Name, item.Id)
 	}
 }

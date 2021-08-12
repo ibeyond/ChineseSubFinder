@@ -6,15 +6,23 @@ import (
 )
 
 type EmbyRecentlyItems struct {
-	Items []struct {
-		Name              string `json:"Name,omitempty"`
-		Id                string `json:"Id,omitempty"`
-		IndexNumber       int    `json:"IndexNumber,omitempty"`
-		ParentIndexNumber int    `json:"ParentIndexNumber,omitempty"`
-		Type              string `json:"Type,omitempty"`
-		SeriesName        string `json:"SeriesName,omitempty"`
-	} `json:"Items,omitempty"`
-	TotalRecordCount int `json:"TotalRecordCount,omitempty"`
+	Items            []EmbyRecentlyItem `json:"Items,omitempty"`
+	TotalRecordCount int                `json:"TotalRecordCount,omitempty"`
+}
+
+type EmbyRecentlyItem struct {
+	Name              string `json:"Name,omitempty"`
+	Id                string `json:"Id,omitempty"`
+	IndexNumber       int    `json:"IndexNumber,omitempty"`
+	ParentIndexNumber int    `json:"ParentIndexNumber,omitempty"`
+	Type              string `json:"Type,omitempty"`
+	UserData          struct {
+		PlaybackPositionTicks int  `json:"PlaybackPositionTicks"`
+		PlayCount             int  `json:"PlayCount"`
+		IsFavorite            bool `json:"IsFavorite"`
+		Played                bool `json:"Played"`
+	} `json:"UserData"`
+	SeriesName string `json:"SeriesName,omitempty"`
 }
 
 type EmbyItemsAncestors struct {
@@ -42,6 +50,41 @@ type EmbyVideoInfo struct {
 		Path                   string `json:"Path"`
 		Protocol               string `json:"Protocol"`
 	} `json:"MediaStreams"`
+}
+
+type EmbyUsers struct {
+	Items []struct {
+		Name string `json:"Name"`
+		Id   string `json:"Id"`
+	} `json:"Items"`
+	TotalRecordCount int `json:"TotalRecordCount"`
+}
+
+type EmbyVideoInfoByUserId struct {
+	Name          string    `json:"Name"`
+	OriginalTitle string    `json:"OriginalTitle"`
+	Id            string    `json:"Id"`
+	DateCreated   time.Time `json:"DateCreated,omitempty"`
+	PremiereDate  time.Time `json:"PremiereDate,omitempty"`
+	SortName      string    `json:"SortName,omitempty"`
+	Path          string    `json:"Path"`
+	MediaSources  []struct {
+		Path                       string `json:"Path"`
+		DefaultAudioStreamIndex    int    `json:"DefaultAudioStreamIndex,omitempty"`
+		DefaultSubtitleStreamIndex int    `json:"DefaultSubtitleStreamIndex,omitempty"`
+	} `json:"MediaSources"`
+}
+
+// GetDefaultSubIndex 获取匹配视频字幕的索引，默认值是0，不应该是0，0 就是没有选择或者说关闭
+func (info EmbyVideoInfoByUserId) GetDefaultSubIndex() int {
+
+	for _, mediaSource := range info.MediaSources {
+		if info.Path == mediaSource.Path {
+			return mediaSource.DefaultSubtitleStreamIndex
+		}
+	}
+
+	return 0
 }
 
 type EmbyMixInfo struct {
