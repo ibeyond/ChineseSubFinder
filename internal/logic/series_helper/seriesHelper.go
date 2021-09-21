@@ -25,7 +25,7 @@ import (
 )
 
 // ReadSeriesInfoFromDir 读取剧集的信息，只有那些 Eps 需要下载字幕的 NeedDlEpsKeyList
-func ReadSeriesInfoFromDir(seriesDir string, imdbInfo *imdb.Title) (*series.SeriesInfo, error) {
+func ReadSeriesInfoFromDir(seriesDir string, imdbInfo *imdb.Title, forcedScanAndDownloadSub bool) (*series.SeriesInfo, error) {
 
 	subParserHub := sub_helper.NewSubParserHub(ass.NewParser(), srt.NewParser())
 
@@ -57,12 +57,7 @@ func ReadSeriesInfoFromDir(seriesDir string, imdbInfo *imdb.Title) (*series.Seri
 		}
 		subParserFileInfo, err := subParserHub.DetermineFileTypeFromFile(subFile)
 		if err != nil {
-			log_helper.GetLogger().Errorln(err)
-			continue
-		}
-		if subParserFileInfo == nil {
-			// 说明这个字幕无法解析
-			log_helper.GetLogger().Warnln("ReadSeriesInfoFromDir", seriesInfo.DirPath, "DetermineFileTypeFromFile is nil")
+			log_helper.GetLogger().Errorln("DetermineFileTypeFromFile", subFile, err)
 			continue
 		}
 		epsKey := pkg.GetEpisodeKeyName(info.Season, info.Episode)
@@ -92,7 +87,7 @@ func ReadSeriesInfoFromDir(seriesDir string, imdbInfo *imdb.Title) (*series.Seri
 		seriesInfo.SeasonDict[episodeInfo.Season] = episodeInfo.Season
 	}
 
-	seriesInfo.NeedDlEpsKeyList, seriesInfo.NeedDlSeasonDict = whichSeasonEpsNeedDownloadSub(seriesInfo)
+	seriesInfo.NeedDlEpsKeyList, seriesInfo.NeedDlSeasonDict = whichSeasonEpsNeedDownloadSub(seriesInfo, forcedScanAndDownloadSub)
 
 	return seriesInfo, nil
 }
@@ -117,7 +112,7 @@ func ReadSeriesInfoFromEmby(seriesDir string, imdbInfo *imdb.Title, seriesList [
 		seriesInfo.SeasonDict[episodeInfo.Season] = episodeInfo.Season
 	}
 
-	seriesInfo.NeedDlEpsKeyList, seriesInfo.NeedDlSeasonDict = whichSeasonEpsNeedDownloadSub(seriesInfo)
+	seriesInfo.NeedDlEpsKeyList, seriesInfo.NeedDlSeasonDict = whichSeasonEpsNeedDownloadSub(seriesInfo, false)
 
 	return seriesInfo, nil
 }
@@ -132,15 +127,17 @@ func SkipChineseSeries(seriesRootPath string, _reqParam ...types.ReqParam) (bool
 	if err != nil {
 		return false, nil, err
 	}
-	t, err := imdb_helper.GetVideoInfoFromIMDB(imdbInfo.ImdbId, reqParam)
+
+	isChineseVideo, t, err := imdb_helper.IsChineseVideo(imdbInfo.ImdbId, reqParam)
 	if err != nil {
 		return false, nil, err
 	}
-	if len(t.Languages) > 0 && strings.ToLower(t.Languages[0]) == "chinese" {
+	if isChineseVideo == true {
 		log_helper.GetLogger().Infoln("Skip", filepath.Base(seriesRootPath), "Sub Download, because series is Chinese")
 		return true, t, nil
+	} else {
+		return false, t, nil
 	}
-	return false, t, nil
 }
 
 // OneSeriesDlSubInAllSite 一部连续剧在所有的网站下载相应的字幕
@@ -215,12 +212,24 @@ func GetSeriesList(dir string) ([]string, error) {
 }
 
 // whichSeasonEpsNeedDownloadSub 有那些 Eps 需要下载的，按 SxEx 反回 epsKey
-func whichSeasonEpsNeedDownloadSub(seriesInfo *series.SeriesInfo) (map[string]series.EpisodeInfo, map[int]int) {
+func whichSeasonEpsNeedDownloadSub(seriesInfo *series.SeriesInfo, forcedScanAndDownloadSub bool) (map[string]series.EpisodeInfo, map[int]int) {
 	var needDlSubEpsList = make(map[string]series.EpisodeInfo, 0)
 	var needDlSeasonList = make(map[int]int, 0)
 	currentTime := time.Now()
 	// 3个月
 	dayRange, _ := time.ParseDuration(common.DownloadSubDuring3Months)
+	// 直接强制所有视频都下载字幕
+	if forcedScanAndDownloadSub == true {
+		for _, epsInfo := range seriesInfo.EpList {
+			// 添加
+			epsKey := pkg.GetEpisodeKeyName(epsInfo.Season, epsInfo.Episode)
+			needDlSubEpsList[epsKey] = epsInfo
+			needDlSeasonList[epsInfo.Season] = epsInfo.Season
+		}
+
+		return needDlSubEpsList, needDlSeasonList
+	}
+
 	for _, epsInfo := range seriesInfo.EpList {
 		// 如果没有字幕，则加入下载列表
 		// 如果每一集的播出时间能够读取到，那么就以这个完后推算 3个月

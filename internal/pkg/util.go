@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/allanpk716/ChineseSubFinder/internal/common"
 	"github.com/allanpk716/ChineseSubFinder/internal/pkg/log_helper"
-	"github.com/allanpk716/ChineseSubFinder/internal/pkg/rod_helper"
 	"github.com/allanpk716/ChineseSubFinder/internal/types"
 	browser "github.com/allanpk716/fake-useragent"
 	"github.com/go-resty/resty/v2"
@@ -19,7 +18,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // NewHttpClient 新建一个 resty 的对象
@@ -303,15 +301,6 @@ func GetEpisodeKeyName(season, eps int) string {
 	return "S" + strconv.Itoa(season) + "E" + strconv.Itoa(eps)
 }
 
-// ReloadBrowser 提前把浏览器下载好
-func ReloadBrowser() {
-	page, err := rod_helper.NewBrowserLoadPage("https://www.baidu.com", "", 300*time.Second, 2)
-	if err != nil {
-		return
-	}
-	defer page.Close()
-}
-
 // CopyFile copies a single file from src to dst
 func CopyFile(src, dst string) error {
 	var err error
@@ -429,4 +418,9 @@ func OSCheck() bool {
 	}
 
 	return false
+}
+
+// FixWindowPathBackSlash 修复 Windows 反斜杠的梗
+func FixWindowPathBackSlash(path string) string {
+	return strings.Replace(path, string(filepath.Separator), "/", -1)
 }

@@ -6,6 +6,6 @@ SubTypePriority: 0
 DebugMode: true
 SaveMultiSub: true
 PlexConfig: false
-MovieFolder: X:\电影
-SeriesFolder: X:\连续剧
-AnimeFolder: X:\动画
+RunAtStartup: true
+MovieFolder: /media/电影
+SeriesFolder: /media/连续剧
